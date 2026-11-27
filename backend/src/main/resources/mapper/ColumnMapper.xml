@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kanbanflow.mapper.ColumnMapper">
+
+    <select id="lockBoard" resultType="long">
+        SELECT BOARD_SEQ FROM TG_BOARD WHERE BOARD_SEQ = #{boardId} FOR UPDATE
+    </select>
+
+    <select id="selectNextColumnPosition" resultType="java.math.BigDecimal">
+        SELECT NVL(MAX(POSITION), 0) + 1000 FROM TG_BOARD_COLUMN WHERE BOARD_SEQ = #{boardId}
+    </select>
+
+    <insert id="insertColumn">
+        INSERT INTO TG_BOARD_COLUMN (COLUMN_SEQ, BOARD_SEQ, COLUMN_TITLE, STATUS_CD, POSITION, REG_DATE, UPD_DATE)
+        VALUES (TG_BOARD_COLUMN_SEQ.NEXTVAL, #{boardId}, #{title}, #{statusCode}, #{position}, SYSDATE, SYSDATE)
+    </insert>
+
+    <select id="lockColumn" resultType="long">
+        SELECT BOARD_SEQ FROM TG_BOARD_COLUMN WHERE COLUMN_SEQ = #{columnId} FOR UPDATE
+    </select>
+
+    <select id="selectStatusCode" resultType="string">
+        SELECT STATUS_CD FROM TG_BOARD_COLUMN WHERE COLUMN_SEQ = #{columnId}
+    </select>
+
+    <select id="countColumnsByStatus" resultType="int">
+        SELECT COUNT(*) FROM TG_BOARD_COLUMN WHERE BOARD_SEQ = #{boardId} AND STATUS_CD = #{statusCode}
+    </select>
+
+    <select id="countCards" resultType="int">
+        SELECT COUNT(*) FROM TG_CARD WHERE COLUMN_SEQ = #{columnId}
+    </select>
+
+    <delete id="deleteColumn">
+        DELETE FROM TG_BOARD_COLUMN WHERE COLUMN_SEQ = #{columnId}
+    </delete>
+</mapper>

@@ -1,0 +1,538 @@
+:root {
+  --accent: #2f5fd0;
+  --bg: #f4f4f1;
+  --surface: #ffffff;
+  --column: #ecebe6;
+  --border: #dedcd6;
+  --border-strong: #c9c8c0;
+  --text: #1b1b1a;
+  --text-muted: #5f5f5a;
+  --text-soft: #4a4a46;
+  --chip: #f0efea;
+  --danger: #a12b1f;
+  --danger-bg: #fbe9e7;
+  --danger-border: #e4b8b2;
+  --done: #2e7d4f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Noto Sans KR', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- 앱 틀 ---------- */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 32px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.app-header__title {
+  margin: 2px 0 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.app-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn {
+  height: 44px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn--primary {
+  border-color: transparent;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn--danger {
+  border-color: var(--danger-border);
+  color: var(--danger);
+}
+
+/* 호버/클릭 시 빨간 배경 + 흰 글자 */
+.btn--danger:not(:disabled):hover,
+.btn--danger:not(:disabled):active {
+  border-color: transparent;
+  background: var(--danger);
+  color: #fff;
+}
+
+/* 컬럼 헤더 오른쪽의 아이콘 버튼 (카드 추가, 컬럼 삭제) */
+.column__actions {
+  flex: none;
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.column__icon-btn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-soft);
+}
+
+.column__icon-btn:hover {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+/* 더보기(⋯) 메뉴 */
+.column-menu {
+  position: relative;
+}
+
+.column-menu__list {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 5;
+  min-width: 140px;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(27, 27, 26, 0.16);
+}
+
+.column-menu__item {
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.column-menu__item--danger {
+  color: var(--danger);
+}
+
+/* 호버/클릭 시 빨간 배경 + 흰 글자 */
+.column-menu__item--danger:hover,
+.column-menu__item--danger:focus-visible,
+.column-menu__item--danger:active {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.status {
+  padding: 48px 32px;
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+.status--error {
+  color: var(--danger);
+}
+
+/* ---------- 보드 ---------- */
+/* 폭이 부족하면 컬럼이 아래 줄로 내려간다 (순서: 왼쪽→오른쪽, 위→아래).
+   align-items: flex-start 라서 컬럼 높이는 각자 내용만큼만 차지하고 같은 줄끼리 맞추지 않는다. */
+.board {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px 32px 32px;
+}
+
+.column {
+  flex: none;
+  width: 304px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--column);
+  border-radius: 12px;
+  transition: box-shadow 0.15s;
+}
+
+.column--over {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.column__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 4px 4px;
+}
+
+/* 제목이 길면 한 줄 말줄임. 아이콘 버튼은 밀리지 않는다. */
+.column__title {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.column__count {
+  flex: none;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: var(--surface);
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.column__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 24px;
+}
+
+/* "N개 더 보기" / "접기" : 마지막 카드와 "카드 추가" 사이 */
+.column__more {
+  height: 44px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.column__more:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* ---------- 카드 ---------- */
+.card {
+  min-width: 0;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  touch-action: none;
+}
+
+.card--placeholder {
+  opacity: 0.35;
+}
+
+.card--overlay {
+  border: 2px solid var(--accent);
+  transform: rotate(2deg);
+  box-shadow: 0 12px 24px rgba(27, 27, 26, 0.18);
+  cursor: grabbing;
+}
+
+/* 제목은 한 줄, 넘치면 말줄임. 전체 내용은 카드 상세에서 본다. */
+.card__title {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.card--done .card__title {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.card__desc {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.card__due {
+  align-self: flex-start;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--chip);
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.card__due--overdue {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.card__row {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.card__check {
+  flex: none;
+  margin-top: 2px;
+  color: var(--done);
+}
+
+/* ---------- 모달 ---------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(27, 27, 26, 0.5);
+}
+
+.modal {
+  width: 760px;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 24px 48px rgba(27, 27, 26, 0.28);
+}
+
+/* 컬럼 추가처럼 짧은 폼용 좁은 모달 */
+.modal--sm {
+  width: 420px;
+}
+
+.modal__heading {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 28px 8px;
+}
+
+.modal__sub {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.modal__body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  padding: 12px 28px 24px;
+}
+
+.modal__main {
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modal__side {
+  flex: 0 0 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 28px;
+  border-top: 1px solid var(--border);
+}
+
+.modal__foot-right {
+  display: flex;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field__label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 14px;
+  color: var(--text);
+}
+
+.input--title {
+  border: 2px solid transparent;
+  background: var(--bg);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.input--title:focus {
+  border-color: var(--accent);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 190px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  resize: vertical;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-soft);
+}
+
+.error-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--danger);
+}
+
+@media (max-width: 640px) {
+  .app-header,
+  .board {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

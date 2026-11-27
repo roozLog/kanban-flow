@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: kanban-flow
+  datasource:
+    url: jdbc:oracle:thin:@//localhost:1521/XEPDB1
+    username: kanban
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+      connection-test-query: SELECT 1 FROM DUAL
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true

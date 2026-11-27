@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kanbanflow.mapper.CardMapper">
+
+    <select id="selectCardInfo" resultType="com.kanbanflow.dto.CardInfoRow">
+        SELECT c.CARD_SEQ AS id, c.COLUMN_SEQ AS columnId, col.BOARD_SEQ AS boardId
+          FROM TG_CARD c
+          JOIN TG_BOARD_COLUMN col ON col.COLUMN_SEQ = c.COLUMN_SEQ
+         WHERE c.CARD_SEQ = #{cardId}
+    </select>
+
+    <select id="lockColumn" resultType="long">
+        SELECT BOARD_SEQ FROM TG_BOARD_COLUMN WHERE COLUMN_SEQ = #{columnId} FOR UPDATE
+    </select>
+
+    <select id="selectNextCardPosition" resultType="java.math.BigDecimal">
+        SELECT NVL(MAX(POSITION), 0) + 1000 FROM TG_CARD WHERE COLUMN_SEQ = #{columnId}
+    </select>
+
+    <insert id="insertCard">
+        INSERT INTO TG_CARD (CARD_SEQ, COLUMN_SEQ, CARD_TITLE, CARD_DESC, POSITION, DUE_DATE, REG_DATE, UPD_DATE)
+        VALUES (TG_CARD_SEQ.NEXTVAL, #{columnId}, #{title}, #{description,jdbcType=VARCHAR},
+                #{position}, #{dueDate,jdbcType=DATE}, SYSDATE, SYSDATE)
+    </insert>
+
+    <update id="updateCard">
+        UPDATE TG_CARD
+           SET CARD_TITLE = #{title},
+               CARD_DESC = #{description,jdbcType=VARCHAR},
+               DUE_DATE = #{dueDate,jdbcType=DATE},
+               COLUMN_SEQ = #{columnId},
+               <if test="position != null">POSITION = #{position},</if>
+               UPD_DATE = SYSDATE
+         WHERE CARD_SEQ = #{cardId}
+    </update>
+
+    <update id="updateCardPosition">
+        UPDATE TG_CARD
+           SET COLUMN_SEQ = #{columnId}, POSITION = #{position}, UPD_DATE = SYSDATE
+         WHERE CARD_SEQ = #{cardId}
+    </update>
+
+    <select id="selectCardPositions" resultType="com.kanbanflow.dto.CardPositionRow">
+        SELECT CARD_SEQ AS id, POSITION AS position
+          FROM TG_CARD
+         WHERE COLUMN_SEQ = #{columnId}
+         ORDER BY POSITION, CASE WHEN CARD_SEQ = #{movedCardId} THEN 1 ELSE 0 END, CARD_SEQ
+    </select>
+
+    <update id="rebalanceColumn">
+        MERGE INTO TG_CARD t
+        USING (SELECT CARD_SEQ,
+                      ROW_NUMBER() OVER (ORDER BY POSITION,
+                                                  CASE WHEN CARD_SEQ = #{movedCardId} THEN 1 ELSE 0 END,
+                                                  CARD_SEQ) * 1000 AS NEW_POS
+                 FROM TG_CARD
+                WHERE COLUMN_SEQ = #{columnId}) s
+           ON (t.CARD_SEQ = s.CARD_SEQ)
+         WHEN MATCHED THEN UPDATE SET t.POSITION = s.NEW_POS
+              WHERE t.POSITION &lt;&gt; s.NEW_POS
+    </update>
+
+    <delete id="deleteCard">
+        DELETE FROM TG_CARD WHERE CARD_SEQ = #{cardId}
+    </delete>
+</mapper>

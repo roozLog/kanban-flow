@@ -1,0 +1,19 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# 빌드/설치 결과물 (각 프로젝트의 .gitignore에도 있음)
+node_modules/
+dist/
+build/
+target/
+.gradle/
+out/
+
+# 로컬 설정, 비밀 (비밀번호는 환경변수 DB_PASSWORD로만 받는다)
+.env
+.env.*
+*.log

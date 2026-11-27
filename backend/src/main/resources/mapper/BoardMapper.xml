@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kanbanflow.mapper.BoardMapper">
+
+    <select id="selectBoard" resultType="com.kanbanflow.dto.BoardRow">
+        SELECT BOARD_SEQ AS id, BOARD_TITLE AS title
+          FROM TG_BOARD
+         WHERE BOARD_SEQ = #{boardId}
+    </select>
+
+    <select id="selectColumns" resultType="com.kanbanflow.dto.ColumnRow">
+        SELECT COLUMN_SEQ AS id, COLUMN_TITLE AS title, STATUS_CD AS statusCode, POSITION AS position
+          FROM TG_BOARD_COLUMN
+         WHERE BOARD_SEQ = #{boardId}
+         ORDER BY POSITION, COLUMN_SEQ
+    </select>
+
+    <select id="selectCardsByBoard" resultType="com.kanbanflow.dto.CardResponse">
+        SELECT c.CARD_SEQ AS id, c.COLUMN_SEQ AS columnId, c.CARD_TITLE AS title,
+               c.CARD_DESC AS description, c.POSITION AS position, c.DUE_DATE AS dueDate
+          FROM TG_CARD c
+          JOIN TG_BOARD_COLUMN col ON col.COLUMN_SEQ = c.COLUMN_SEQ
+         WHERE col.BOARD_SEQ = #{boardId}
+         ORDER BY c.COLUMN_SEQ, c.POSITION, c.CARD_SEQ
+    </select>
+</mapper>
